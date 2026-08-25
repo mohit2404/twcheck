@@ -13,6 +13,9 @@ function canonicalizeCandidate(candidate) {
   let negative = false;
   if (utility.startsWith('-')) { negative = true; utility = utility.slice(1); }
 
+  // Theme variables use the shorthand `bg-(--background)` and can be
+  // written canonically as the matching theme utility `bg-background`.
+  utility = utility.replace(/^(.*)-\(--([a-z0-9-]+)\)$/i, '$1-$2');
   // Tailwind v4 canonical shorthand for CSS custom properties.
   utility = utility.replace(/(.*)-\[var\((--[^\]]+)\)\]$/, '$1-($2)');
   utility = utility.replace(/(.*)-\[var\((--[^\]]+),([^\]]+)\)\]$/, '$1-($2,$3)');
@@ -35,7 +38,7 @@ function scanCandidates(source) {
   let m;
   while ((m = re.exec(source))) {
     const raw = m[0];
-    if (!raw.includes('[') || raw.includes('=') || raw.length < 3) continue;
+    if ((!raw.includes('[') && !raw.includes('-(')) || raw.includes('=') || raw.length < 3) continue;
     const canonical = canonicalizeCandidate(raw);
     if (canonical !== raw && !result.some(x => x.start === m.index)) result.push({ raw, canonical, start: m.index, end: m.index + raw.length });
   }
