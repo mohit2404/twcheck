@@ -1,6 +1,6 @@
 {
   "name": "twcheck",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Find and fix non-canonical Tailwind CSS classes from the command line.",
   "license": "MIT",
   "repository": {

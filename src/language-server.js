@@ -26,7 +26,7 @@ function projectSettings(cssPath) {
   return {
     validate: true,
     lint: {
-      cssConflict: 'ignore',
+      cssConflict: 'warning',
       invalidApply: 'ignore',
       invalidScreen: 'ignore',
       invalidVariant: 'ignore',
@@ -88,22 +88,34 @@ async function analyzeFiles(files, options = {}) {
     const uri = message.params.uri;
     if (!sources.has(uri)) return;
     const issues = message.params.diagnostics
-      .filter(diagnostic => diagnostic.code === 'suggestCanonicalClasses' && diagnostic.suggestions?.[0])
+      .filter(diagnostic => diagnostic.code === 'suggestCanonicalClasses' || diagnostic.code === 'cssConflict')
       .map(diagnostic => {
         const source = sources.get(uri);
         const start = lineOffset(source, diagnostic.range.start.line, diagnostic.range.start.character);
         const end = lineOffset(source, diagnostic.range.end.line, diagnostic.range.end.character);
+        const relatedRanges = (diagnostic.relatedInformation || [])
+          .map(item => item.location?.uri === uri ? item.location.range : null)
+          .filter(Boolean)
+          .map(range => ({ start: lineOffset(source, range.start.line, range.start.character), end: lineOffset(source, range.end.line, range.end.character) }));
+        const conflictRanges = [{ start, end }, ...relatedRanges].sort((a, b) => a.start - b.start);
+        const conflict = diagnostic.code === 'cssConflict';
+        if (!conflict && !diagnostic.suggestions?.[0]) return null;
         return {
+          type: conflict ? 'conflict' : 'canonical',
           file: path.relative(root, fileURLToPath(uri)),
           absoluteFile: fileURLToPath(uri),
           line: diagnostic.range.start.line + 1,
           column: diagnostic.range.start.character + 1,
           raw: source.slice(start, end),
-          canonical: diagnostic.suggestions[0],
+          canonical: conflict ? null : diagnostic.suggestions[0],
+          message: conflict ? diagnostic.message : null,
           start,
           end,
+          conflictStart: conflict ? conflictRanges[0].start : null,
+          conflictEnd: conflict ? conflictRanges[0].end : null,
         };
-      });
+      })
+      .filter(Boolean);
     diagnostics.set(uri, issues);
     seen.add(uri);
     finishIfReady();
