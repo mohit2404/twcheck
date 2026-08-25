@@ -1,16 +1,42 @@
 {
   "name": "twcheck",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Find and fix non-canonical Tailwind CSS classes from the command line.",
   "license": "MIT",
-  "repository": { "type": "git", "url": "git+https://github.com/mohit2404/twcheck.git" },
-  "bugs": { "url": "https://github.com/mohit2404/twcheck/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohit2404/twcheck.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mohit2404/twcheck/issues"
+  },
   "homepage": "https://github.com/mohit2404/twcheck#readme",
   "type": "commonjs",
-  "bin": { "twcheck": "./dist/cli.js" },
+  "bin": {
+    "twcheck": "./dist/cli.js"
+  },
   "main": "./dist/index.js",
-  "files": ["dist", "README.md", "LICENSE"],
-  "keywords": ["tailwindcss", "tailwind", "canonical", "lint", "formatter", "cli"],
-  "engines": { "node": ">=18" },
-  "scripts": { "build": "node scripts/build.js", "test": "node test/smoke.js" }
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "tailwindcss",
+    "tailwind",
+    "canonical",
+    "lint",
+    "formatter",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node test/smoke.js"
+  },
+  "dependencies": {
+    "@tailwindcss/language-server": "^0.16.0"
+  }
 }
