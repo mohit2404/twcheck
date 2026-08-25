@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { analyzeFiles } = require('./language-server');
 
-const VERSION = '1.1.1';
+const VERSION = '1.1.2';
 const EXCLUDED = new Set(['node_modules', '.git', '.next', 'dist', 'build', 'out', 'coverage', '.turbo', '.cache']);
 const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.html', '.vue', '.svelte']);
 const ANSI = { reset: '\x1b[0m', red: '\x1b[31m', green: '\x1b[32m', yellow: '\x1b[33m', cyan: '\x1b[36m', bold: '\x1b[1m' };
@@ -23,7 +23,7 @@ async function main() {
   const { files, root } = filesFor(o.path);
   const issues = await analyzeFiles(files, { cwd: process.cwd(), cssPath: o.css ? path.resolve(o.css) : null });
   const byFile = new Map();
-  for (const issue of issues) { const absolute = path.resolve(root, issue.file); if (!byFile.has(absolute)) byFile.set(absolute, []); byFile.get(absolute).push(issue); }
+  for (const issue of issues) { const absolute = issue.absoluteFile || path.resolve(process.cwd(), issue.file); if (!byFile.has(absolute)) byFile.set(absolute, []); byFile.get(absolute).push(issue); }
   const changed = [];
   if (o.fix) for (const [file, fileIssues] of byFile) { const result = applyChanges(file, fileIssues); if (result.source !== result.fixed) { fs.writeFileSync(file, result.fixed); changed.push(file); } }
   const summary = { filesScanned: files.length, filesWithWarnings: byFile.size, warnings: issues.length, filesChanged: changed.length, issues: issues.map(x => ({ file: x.file, line: x.line, column: x.column, from: x.raw, to: x.canonical })) };

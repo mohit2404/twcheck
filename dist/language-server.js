@@ -95,6 +95,7 @@ async function analyzeFiles(files, options = {}) {
         const end = lineOffset(source, diagnostic.range.end.line, diagnostic.range.end.character);
         return {
           file: path.relative(root, fileURLToPath(uri)),
+          absoluteFile: fileURLToPath(uri),
           line: diagnostic.range.start.line + 1,
           column: diagnostic.range.start.character + 1,
           raw: source.slice(start, end),
